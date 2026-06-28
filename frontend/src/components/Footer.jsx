@@ -1,42 +1,115 @@
+import { Link } from "react-router-dom";
+
 function Footer({ links }) {
   return (
-    <footer className="bg-slate-900 text-white mt-10">
-      <div className="max-w-7xl mx-auto px-6 py-10">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div>
-          <h2 className="text-2xl font-bold">StayNest</h2>
-          <p className="mt-3 text-slate-300">
-            AI-Powered Travel & Homestay Platform helping travelers
-            discover unique stays and personalized itineraries.
-          </p>
-        </div>
+    <footer className="bg-slate-900 text-white mt-16">
+      <div className="max-w-7xl mx-auto px-6 py-12">
 
-          <div className="flex justify-center gap-4 mt-4">
-            {links.map((link) => (
-              <a className="hover:text-blue-400" key={link.path} href={link.path}>
-                {link.name}
-              </a>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+          {/* About */}
+          <div>
+            <h2 className="text-3xl font-bold text-blue-400">
+              StayNest
+            </h2>
+
+            <p className="mt-4 text-slate-300 leading-7">
+              StayNest is an AI-powered travel and homestay platform that
+              helps travelers discover unique accommodations, check
+              availability, and plan personalized trips effortlessly.
+            </p>
           </div>
 
+          {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">
-              Contact
+            <h3 className="text-xl font-semibold mb-4">
+              Quick Links
+            </h3>
+
+            <ul className="space-y-3">
+              {links.map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className="text-slate-300 hover:text-blue-400 transition"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4">
+              Contact Us
             </h3>
 
             <p className="text-slate-300">
-              support@staynest.com
+              📧 support@staynest.com
             </p>
 
-            <p className="text-slate-300 mt-2">
-              +91 0000000000
+            <p className="text-slate-300 mt-3">
+              📞 +91 00000 00000
             </p>
+
+            <p className="text-slate-300 mt-3">
+              📍 Dehradun, Uttarakhand, India
+            </p>
+
+            {/* Social Links */}
+            <div className="flex gap-4 mt-6">
+              <a
+                href="#"
+                className="hover:text-blue-400 transition"
+              >
+                Facebook
+              </a>
+
+              <a
+                href="#"
+                className="hover:text-blue-400 transition"
+              >
+                Instagram
+              </a>
+
+              <a
+                href="#"
+                className="hover:text-blue-400 transition"
+              >
+                LinkedIn
+              </a>
+            </div>
           </div>
+
         </div>
 
-        <p className="mt-4 text-sm text-gray-500 flex justify-center">
-          © {new Date().getFullYear()} StayNest. All rights reserved.
-        </p>
+        {/* Bottom */}
+        <div className="border-t border-slate-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+
+          <p className="text-slate-400 text-sm">
+            © {new Date().getFullYear()} StayNest. All Rights Reserved.
+          </p>
+
+          <div className="flex gap-6 mt-4 md:mt-0 text-sm">
+            <Link
+              to="/privacy-policy"
+              className="hover:text-blue-400 transition"
+            >
+              Privacy Policy
+            </Link>
+
+            <Link
+              to="/terms"
+              className="hover:text-blue-400 transition"
+            >
+              Terms & Conditions
+            </Link>
+          </div>
+
+        </div>
+
       </div>
     </footer>
   );
