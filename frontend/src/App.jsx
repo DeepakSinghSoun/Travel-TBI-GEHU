@@ -6,7 +6,6 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Listings from "./pages/Listings";
 import Dashboard from "./pages/Dashboard";
-
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import HomestayManagement from "./pages/HomestayManagement";
@@ -18,43 +17,44 @@ const navLinks = [
   { name: "Home", path: "/" },
   { name: "Listings", path: "/listings" },
   { name: "Trip Planner", path: "/trip-planner" },
-  { name: "Dashboard", path: "/dashboard" },
-  { name: "Profile", path: "/profile" },
   { name: "Login", path: "/login" },
-  { name: "Register", path: "/Register" },
-  { name: "Manage Listings", path: "/manage-listings" },
+  { name: "Register", path: "/register" },
 ];
 
 function App() {
-
   return (
-    <>
-      <BrowserRouter>
-        <Navbar links={navLinks} />
+    <BrowserRouter basename="/Travel-TBI-GEHU">
+      <Navbar links={navLinks} />
 
-        <Routes>
-          <Route path="/" element={<Home />} />
+      <Routes>
+        <Route path="/" element={<Home />} />
 
-          <Route path="/listings" element={<Listings />} />
+        <Route path="/listings" element={<Listings />} />
 
-          <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/trip-planner" element={<TripPlanner />} />
 
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
 
-          <Route path="/manage-listings" element={<HomestayManagement />} />
+        <Route path="/register" element={<Register />} />
 
-          <Route path="/booking-request" element={<BookingRequest />} />
+        {/* Hidden Pages */}
+        <Route path="/dashboard" element={<Dashboard />} />
 
-          <Route path="/trip-planner" element={<TripPlanner />} />
-          
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
+        <Route
+          path="/manage-listings"
+          element={<HomestayManagement />}
+        />
 
-        <Footer links={navLinks} />
+        <Route
+          path="/booking-request"
+          element={<BookingRequest />}
+        />
+
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+
+      <Footer links={navLinks} />
     </BrowserRouter>
-
-    </>
   );
 }
 

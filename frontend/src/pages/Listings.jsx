@@ -1,113 +1,105 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropertyCard from "../components/PropertyCard";
+import PropertySearch from "../components/PropertySearch";
+import Loader from "../components/Loader";
+import properties from "../data/properties";
 
 function Listings() {
-    const properties = [
-        {
-            id: 1,
-            image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
-            title: "Mountain View Cottage",
-            location: "Mussoorie, Uttarakhand",
-            price: 3500,
-            rating: 4.8,
-        },
-        {
-            id: 2,
-            image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
-            title: "Lake View Villa",
-            location: "Nainital, Uttarakhand",
-            price: 4500,
-            rating: 4.9,
-        },
-        {
-            id: 3,
-            image: "https://images.unsplash.com/photo-1494526585095-c41746248156",
-            title: "Forest Retreat",
-            location: "Manali, Himachal Pradesh",
-            price: 4000,
-            rating: 4.7,
-        },
-        {
-            id: 4,
-            image: "https://images.unsplash.com/photo-1494526585095-c41746248156",
-            title: "Forest Retreat",
-            location: "Manali, Himachal Pradesh",
-            price: 4000,
-            rating: 4.7,
-        },
-        {
-            id: 5,
-            image: "https://images.unsplash.com/photo-1494526585095-c41746248156",
-            title: "Forest Retreat",
-            location: "Manali, Himachal Pradesh",
-            price: 4000,
-            rating: 4.7,
-        },
-        {
-            id: 6,
-            image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
-            title: "Mountain View Cottage",
-            location: "Mussoorie, Uttarakhand",
-            price: 3500,
-            rating: 4.8,
-        },
-        {
-            id: 7,
-            image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
-            title: "Lake View Villa",
-            location: "Nainital, Uttarakhand",
-            price: 4500,
-            rating: 4.9,
-        },
-        {
-            id: 8,
-            image: "https://images.unsplash.com/photo-1494526585095-c41746248156",
-            title: "Forest Retreat",
-            location: "Manali, Himachal Pradesh",
-            price: 4000,
-            rating: 4.7,
-        },
-    ];
+  const [loading, setLoading] = useState(true);
 
-    const [search, setSearch] = useState("");
-    const [maxPrice, setMaxPrice] = useState("");
+  const [searchData, setSearchData] = useState({
+    destination: "",
+    checkIn: "",
+    checkOut: "",
+    guests: 1,
+    roomType: "",
+    price: "",
+  });
 
-    const filteredProperties = properties.filter((property) => {
-        const matchesSearch =
-        property.title.toLowerCase().includes(search.toLowerCase()) ||
-        property.location.toLowerCase().includes(search.toLowerCase());
+  useEffect(() => {
+    // Simulate API request
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
 
-        const matchesPrice =
-        maxPrice === "" || property.price <= Number(maxPrice);
+    return () => clearTimeout(timer);
+  }, []);
 
-        return matchesSearch && matchesPrice;
-    });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setSearchData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(searchData);
+  };
+
+  const filteredProperties = properties.filter((property) => {
+    // Destination
+    const matchesDestination =
+      searchData.destination === "" ||
+      property.title
+        .toLowerCase()
+        .includes(searchData.destination.toLowerCase()) ||
+      property.location
+        .toLowerCase()
+        .includes(searchData.destination.toLowerCase());
+
+    // Price
+    const matchesPrice =
+      searchData.price === "" ||
+      property.price <= Number(searchData.price);
+
+    // Room Type
+    const matchesRoom =
+      searchData.roomType === "" ||
+      property.roomType === searchData.roomType;
+
+    // Available Rooms
+    const hasRooms = property.availableRooms > 0;
+
+    // Date Availability
+    const matchesDate =
+      (!searchData.checkIn ||
+        searchData.checkIn >= property.availableFrom) &&
+      (!searchData.checkOut ||
+        searchData.checkOut <= property.availableTo);
 
     return (
-        <section className="px-6 py-10">
+      matchesDestination &&
+      matchesPrice &&
+      matchesRoom &&
+      hasRooms &&
+      matchesDate
+    );
+  });
+
+  // Show Loader while data is loading
+  if (loading) {
+    return <Loader />;
+  }
+
+  return (
+    <section className="px-6 py-10 bg-gray-100 min-h-screen">
+      {/* Search Form */}
+      <PropertySearch
+        searchData={searchData}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+      />
+
+      {/* Listings */}
+      <div className="mt-10">
         <h2 className="text-3xl font-bold text-center mb-8">
-            Featured Homestays
+          Featured Homestays
         </h2>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-            <input
-            type="text"
-            placeholder="Search by title or location..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border p-3 rounded-lg flex-1"
-            />
-
-            <input
-            type="number"
-            placeholder="Max Price"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            className="border p-3 rounded-lg"
-            />
-        </div>
-
-        <div className="p-6">
+        {filteredProperties.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProperties.map((property) => (
               <PropertyCard
@@ -116,10 +108,20 @@ function Listings() {
               />
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="text-center py-10">
+            <h3 className="text-2xl font-semibold text-gray-600">
+              No Properties Found
+            </h3>
 
-      </section>
-    );
+            <p className="text-gray-500 mt-2">
+              Try changing your search criteria.
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
 }
 
 export default Listings;
