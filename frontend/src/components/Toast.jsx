@@ -1,20 +1,12 @@
 import { useEffect } from "react";
 
-function Toast({
-  message,
-  type = "success",
-  show,
-  onClose,
-}) {
+function Toast({ message, type = "success", show, onClose }) {
   useEffect(() => {
-    if (show) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, 3000);
+    if (!show) return;
 
-      return () => clearTimeout(timer);
-    }
-  }, [show, onClose]);
+    const timer = setTimeout(onClose, 3000);
+    return () => clearTimeout(timer);
+  }, [show]);
 
   if (!show) return null;
 
@@ -27,15 +19,11 @@ function Toast({
 
   return (
     <div
-      className={`fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${bgColor[type]}`}
+      className={`fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg text-white transition ${bgColor[type]}`}
     >
       <div className="flex items-center justify-between gap-4">
         <span>{message}</span>
-
-        <button
-          onClick={onClose}
-          className="font-bold"
-        >
+        <button onClick={onClose} className="font-bold">
           ✕
         </button>
       </div>

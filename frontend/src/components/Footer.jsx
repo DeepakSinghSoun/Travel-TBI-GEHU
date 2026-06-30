@@ -1,6 +1,27 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-function Footer({ links }) {
+function Footer() {
+  const { token } = useAuth();
+
+  const links = [
+    { name: "Home", path: "/" },
+    { name: "Listings", path: "/listings" },
+    { name: "Trip Planner", path: "/trip-planner" },
+  ];
+
+  if (token) {
+    links.push(
+      { name: "Dashboard", path: "/dashboard" },
+      { name: "Profile", path: "/profile" }
+    );
+  } else {
+    links.push(
+      { name: "Login", path: "/login" },
+      { name: "Register", path: "/register" }
+    );
+  }
+
   return (
     <footer className="bg-slate-900 text-white mt-16">
       <div className="max-w-7xl mx-auto px-6 py-12">
@@ -58,26 +79,16 @@ function Footer({ links }) {
               📍 Dehradun, Uttarakhand, India
             </p>
 
-            {/* Social Links */}
             <div className="flex gap-4 mt-6">
-              <a
-                href="#"
-                className="hover:text-blue-400 transition"
-              >
+              <a href="#" className="hover:text-blue-400">
                 Facebook
               </a>
 
-              <a
-                href="#"
-                className="hover:text-blue-400 transition"
-              >
+              <a href="#" className="hover:text-blue-400">
                 Instagram
               </a>
 
-              <a
-                href="#"
-                className="hover:text-blue-400 transition"
-              >
+              <a href="#" className="hover:text-blue-400">
                 LinkedIn
               </a>
             </div>
@@ -85,7 +96,6 @@ function Footer({ links }) {
 
         </div>
 
-        {/* Bottom */}
         <div className="border-t border-slate-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
 
           <p className="text-slate-400 text-sm">
@@ -95,14 +105,14 @@ function Footer({ links }) {
           <div className="flex gap-6 mt-4 md:mt-0 text-sm">
             <Link
               to="/privacy-policy"
-              className="hover:text-blue-400 transition"
+              className="hover:text-blue-400"
             >
               Privacy Policy
             </Link>
 
             <Link
               to="/terms"
-              className="hover:text-blue-400 transition"
+              className="hover:text-blue-400"
             >
               Terms & Conditions
             </Link>

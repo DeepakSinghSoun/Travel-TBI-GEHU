@@ -1,4 +1,6 @@
 import { useState } from "react";
+import API from "../api";
+import { useNavigate, Link } from "react-router-dom";
 import Button from "../components/Button";
 
 function Register() {
@@ -10,47 +12,82 @@ function Register() {
     terms: false,
   });
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [showPassword, setShowPassword] = useState({
+    password: false,
+    confirm: false,
+  });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    });
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
+    const { fullName, email, password, confirmPassword, terms } = formData;
+
+    // VALIDATION
     if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
+      !fullName.trim() ||
+      !email.trim() ||
+      !password.trim() ||
+      !confirmPassword.trim()
     ) {
-      alert("Please fill in all fields.");
+      setError("Please fill in all fields.");
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
       return;
     }
 
-    if (!formData.terms) {
-      alert("Please accept the Terms & Conditions.");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
-    console.log(formData);
-    alert("Registration Successful!");
+    if (!terms) {
+      setError("Please accept Terms & Conditions.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await API.post("/auth/register", {
+        name: fullName.trim(),
+        email: email.trim(),
+        password,
+      });
+
+      if (res.data?.success || res.data) {
+        navigate("/login");
+      } else {
+        setError("Registration failed. Try again.");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-10">
       <div className="bg-white w-full max-w-lg rounded-xl shadow-lg p-8">
+
         <h1 className="text-3xl font-bold text-center mb-2">
           Create Account
         </h1>
@@ -60,19 +97,18 @@ function Register() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
           {/* Full Name */}
           <div>
             <label className="block font-medium mb-2">
               Full Name
             </label>
-
             <input
               type="text"
               name="fullName"
-              placeholder="Enter your full name"
               value={formData.fullName}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border rounded-lg p-3"
             />
           </div>
 
@@ -81,14 +117,12 @@ function Register() {
             <label className="block font-medium mb-2">
               Email
             </label>
-
             <input
               type="email"
               name="email"
-              placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border rounded-lg p-3"
             />
           </div>
 
@@ -100,20 +134,24 @@ function Register() {
 
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword.password ? "text" : "password"}
                 name="password"
-                placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3 pr-16 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded-lg p-3 pr-16"
               />
 
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 font-medium"
+                onClick={() =>
+                  setShowPassword((prev) => ({
+                    ...prev,
+                    password: !prev.password,
+                  }))
+                }
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600"
               >
-                {showPassword ? "Hide" : "Show"}
+                {showPassword.password ? "Hide" : "Show"}
               </button>
             </div>
           </div>
@@ -124,17 +162,31 @@ function Register() {
               Confirm Password
             </label>
 
-            <input
-              type={showPassword ? "text" : "password"}
-              name="confirmPassword"
-              placeholder="Confirm your password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <input
+                type={showPassword.confirm ? "text" : "password"}
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-3 pr-16"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword((prev) => ({
+                    ...prev,
+                    confirm: !prev.confirm,
+                  }))
+                }
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600"
+              >
+                {showPassword.confirm ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
 
-          {/* Terms & Conditions */}
+          {/* Terms */}
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -142,35 +194,32 @@ function Register() {
               checked={formData.terms}
               onChange={handleChange}
             />
-
-            <label>
-              I agree to the{" "}
-              <a
-                href="#"
-                className="text-blue-600 hover:underline"
-              >
-                Terms & Conditions
-              </a>
-            </label>
+            <label>I agree to Terms & Conditions</label>
           </div>
 
-          {/* Reusable Button */}
+          {/* Error */}
+          {error && (
+            <p className="text-red-600 text-sm">{error}</p>
+          )}
+
+          {/* Button */}
           <Button
             type="submit"
             className="w-full py-3"
+            disabled={loading}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </Button>
         </form>
 
         <p className="text-center mt-6 text-gray-600">
           Already have an account?{" "}
-          <a
-            href="/Travel-TBI-GEHU/login"
-            className="text-blue-600 font-semibold hover:underline"
+          <Link
+            to="/login"
+            className="text-blue-600 font-semibold"
           >
             Login
-          </a>
+          </Link>
         </p>
       </div>
     </div>

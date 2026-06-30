@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "./Button";
 
 function PropertyCard({
@@ -13,8 +13,22 @@ function PropertyCard({
   availableFrom,
   availableTo,
 }) {
+  const navigate = useNavigate();
+
+  const handleBook = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    navigate("/booking-request");
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden shadow-md w-80 bg-white hover:shadow-lg transition">
+      
       <img
         src={image}
         alt={title}
@@ -59,7 +73,9 @@ function PropertyCard({
                 : "text-red-600 font-semibold"
             }
           >
-            {availableRooms > 0 ? "Available" : "Fully Booked"}
+            {availableRooms > 0
+              ? "Available"
+              : "Fully Booked"}
           </span>
         </p>
 
@@ -67,21 +83,22 @@ function PropertyCard({
           📅 {availableFrom} - {availableTo}
         </p>
 
+        {/* BOOK BUTTON LOGIC */}
         {availableRooms > 0 ? (
-            <Link to="/booking-request" className="block mt-4">
-              <Button className="w-full">
-                Book Now
-              </Button>
-            </Link>
-          ) : (
-            <Button
-              disabled
-              className="w-full mt-4"
-            >
-              Not Available
-            </Button>
-          )
-        }
+          <Button
+            className="w-full mt-4"
+            onClick={handleBook}
+          >
+            Book Now
+          </Button>
+        ) : (
+          <Button
+            disabled
+            className="w-full mt-4"
+          >
+            Not Available
+          </Button>
+        )}
       </div>
     </div>
   );

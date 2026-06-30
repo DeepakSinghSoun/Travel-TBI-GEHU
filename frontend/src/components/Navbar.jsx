@@ -1,39 +1,73 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-function Navbar({ links }) {
+function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const { user, logout, token } = useAuth();
+
+  const isLoggedIn = !!token;
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+
         {/* Logo */}
-        <Link
-          to="/"
-          className="text-3xl font-bold text-blue-600"
-        >
+        <Link to="/" className="text-3xl font-bold text-blue-600">
           StayNest
         </Link>
 
         {/* Desktop Menu */}
-        <ul className="hidden md:flex items-center gap-8 text-lg font-medium">
-          {links.map((link) => (
-            <li key={link.path}>
-              <Link
-                to={link.path}
-                className={
-                  link.name === "Register"
-                    ? "bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition"
-                    : "hover:text-blue-600 transition"
-                }
+        <ul className="hidden md:flex items-center gap-6 text-lg font-medium">
+
+          {/* Always visible */}
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/listings">Listings</Link></li>
+          <li><Link to="/trip-planner">Trip Planner</Link></li>
+
+          {/* Logged in ONLY */}
+          {isLoggedIn && (
+            <>
+              <li><Link to="/dashboard">Dashboard</Link></li>
+              <li><Link to="/profile">Profile</Link></li>
+            </>
+          )}
+
+          {/* AUTH SWITCH */}
+          {!isLoggedIn ? (
+            <>
+              <li>
+                <Link to="/login">Login</Link>
+              </li>
+              <li>
+                <Link
+                  to="/register"
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  Register
+                </Link>
+              </li>
+            </>
+          ) : (
+            <li>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-4 py-2 rounded"
               >
-                {link.name}
-              </Link>
+                Logout
+              </button>
             </li>
-          ))}
+          )}
         </ul>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile button */}
         <button
           className="md:hidden text-3xl"
           onClick={() => setIsOpen(!isOpen)}
@@ -42,24 +76,36 @@ function Navbar({ links }) {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       {isOpen && (
         <ul className="md:hidden flex flex-col gap-4 px-6 pb-6">
-          {links.map((link) => (
-            <li key={link.path}>
-              <Link
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={
-                  link.name === "Register"
-                    ? "block bg-blue-600 text-white text-center py-2 rounded-lg"
-                    : "block hover:text-blue-600 transition"
-                }
+
+          <li><Link onClick={() => setIsOpen(false)} to="/">Home</Link></li>
+          <li><Link onClick={() => setIsOpen(false)} to="/listings">Listings</Link></li>
+          <li><Link onClick={() => setIsOpen(false)} to="/trip-planner">Trip Planner</Link></li>
+
+          {isLoggedIn && (
+            <>
+              <li><Link onClick={() => setIsOpen(false)} to="/dashboard">Dashboard</Link></li>
+              <li><Link onClick={() => setIsOpen(false)} to="/profile">Profile</Link></li>
+            </>
+          )}
+
+          {!isLoggedIn ? (
+            <>
+              <li><Link onClick={() => setIsOpen(false)} to="/login">Login</Link></li>
+              <li><Link onClick={() => setIsOpen(false)} to="/register">Register</Link></li>
+            </>
+          ) : (
+            <li>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-4 py-2 w-full rounded"
               >
-                {link.name}
-              </Link>
+                Logout
+              </button>
             </li>
-          ))}
+          )}
         </ul>
       )}
     </nav>

@@ -1,93 +1,122 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import API from "../api";
 
 function Profile() {
-  const [user, setUser] = useState({
-    name: "Deepak Singh",
-    email: "deepak@example.com",
-    phone: "+91 9876543210",
-    location: "Meerut, Uttar Pradesh",
-  });
+  const [user, setUser] = useState(null);
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    setUser({
-      ...user,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // FETCH USER + BOOKINGS
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("Profile Updated Successfully!");
-    console.log(user);
-  };
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          setError("No token found. Please login first.");
+          setLoading(false);
+          return;
+        }
+
+        // USER DATA
+        const userRes = await API.get("/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // USER TRIPS / BOOKINGS
+        const tripRes = await API.get("/trips", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setUser(userRes.data.user);
+        setTrips(tripRes.data.trips || []);
+        setError("");
+      } catch (err) {
+        setError(
+          err.response?.data?.message ||
+            "Failed to load profile"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <h2>Loading profile...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-red-600">
+        <h2>{error}</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
-      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-8">
-        <h1 className="text-4xl font-bold mb-6">
-          User Profile
-        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block mb-1 font-medium">
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={user.name}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-            />
+      <div className="max-w-4xl mx-auto space-y-6">
+
+        {/* USER INFO */}
+        <div className="bg-white p-6 rounded-lg shadow">
+
+          <h1 className="text-4xl font-bold mb-6">
+            Profile
+          </h1>
+
+          <div className="space-y-2">
+            <p><b>Name:</b> {user?.name}</p>
+            <p><b>Email:</b> {user?.email}</p>
           </div>
 
-          <div>
-            <label className="block mb-1 font-medium">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={user.email}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-            />
-          </div>
+        </div>
 
-          <div>
-            <label className="block mb-1 font-medium">
-              Phone
-            </label>
-            <input
-              type="text"
-              name="phone"
-              value={user.phone}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-            />
-          </div>
+        {/* BOOKINGS */}
+        <div className="bg-white p-6 rounded-lg shadow">
 
-          <div>
-            <label className="block mb-1 font-medium">
-              Location
-            </label>
-            <input
-              type="text"
-              name="location"
-              value={user.location}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-            />
-          </div>
+          <h2 className="text-2xl font-bold mb-4">
+            My Bookings
+          </h2>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700"
-          >
-            Save Changes
-          </button>
-        </form>
+          {trips.length === 0 ? (
+            <p>No bookings found</p>
+          ) : (
+            <div className="space-y-3">
+
+              {trips.map((trip) => (
+                <div
+                  key={trip._id}
+                  className="border p-4 rounded-lg"
+                >
+                  <h3 className="font-bold">
+                    {trip.destination}
+                  </h3>
+
+                  <p>Budget: ₹{trip.budget}</p>
+                  <p>Travelers: {trip.travelers}</p>
+                </div>
+              ))}
+
+            </div>
+          )}
+
+        </div>
+
       </div>
     </div>
   );
