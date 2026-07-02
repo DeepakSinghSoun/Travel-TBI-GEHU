@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import API from "../api";
-import HomestayForm from "../components/HomestayForm";
+import API from "../../api";
 
-function HomestayManagement() {
+function ManageHomestays() {
   const [homestays, setHomestays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -13,8 +12,6 @@ function HomestayManagement() {
 
   const fetchHomestays = async () => {
     try {
-      setLoading(true);
-
       const token = localStorage.getItem("token");
 
       const res = await API.get("/admin/homestays", {
@@ -23,10 +20,9 @@ function HomestayManagement() {
         },
       });
 
-      if (res.data.success) {
-        setHomestays(res.data.homestays);
-      }
+      setHomestays(res.data.homestays);
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Failed to load homestays");
     } finally {
       setLoading(false);
@@ -49,7 +45,9 @@ function HomestayManagement() {
         },
       });
 
-      fetchHomestays();
+      setHomestays((prev) =>
+        prev.filter((item) => item._id !== id)
+      );
     } catch (err) {
       alert(err.response?.data?.message || "Delete failed");
     }
@@ -57,7 +55,7 @@ function HomestayManagement() {
 
   if (loading) {
     return (
-      <div className="text-center p-10 text-xl">
+      <div className="p-10 text-center text-xl">
         Loading...
       </div>
     );
@@ -65,7 +63,7 @@ function HomestayManagement() {
 
   if (error) {
     return (
-      <div className="text-center p-10 text-red-600">
+      <div className="p-10 text-center text-red-600">
         {error}
       </div>
     );
@@ -74,13 +72,21 @@ function HomestayManagement() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Homestay Listings Management
-      </h1>
+      <div className="flex justify-between items-center mb-8">
 
-      <HomestayForm onSuccess={fetchHomestays} />
+        <h1 className="text-3xl font-bold">
+          Manage Homestays
+        </h1>
 
-      <div className="bg-white rounded-xl shadow mt-8 overflow-x-auto">
+        <button
+          className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
+        >
+          + Add Homestay
+        </button>
+
+      </div>
+
+      <div className="overflow-x-auto bg-white rounded-xl shadow">
 
         <table className="w-full">
 
@@ -88,12 +94,17 @@ function HomestayManagement() {
 
             <tr>
 
-              <th className="p-4">Image</th>
-              <th className="p-4">Title</th>
-              <th className="p-4">Location</th>
-              <th className="p-4">Price</th>
-              <th className="p-4">Rooms</th>
-              <th className="p-4">Actions</th>
+              <th className="p-4 text-left">Image</th>
+
+              <th className="p-4 text-left">Title</th>
+
+              <th className="p-4 text-left">Location</th>
+
+              <th className="p-4 text-left">Price</th>
+
+              <th className="p-4 text-left">Rooms</th>
+
+              <th className="p-4 text-left">Actions</th>
 
             </tr>
 
@@ -101,50 +112,50 @@ function HomestayManagement() {
 
           <tbody>
 
-            {homestays.map((home) => (
+            {homestays.map((item) => (
 
               <tr
-                key={home._id}
+                key={item._id}
                 className="border-t"
               >
 
                 <td className="p-4">
-
                   <img
-                    src={home.images?.[0]}
-                    alt={home.title}
+                    src={item.images?.[0]}
+                    alt={item.title}
                     className="w-24 h-16 object-cover rounded"
                   />
-
                 </td>
 
                 <td className="p-4">
-                  {home.title}
+                  {item.title}
                 </td>
 
                 <td className="p-4">
-                  {home.location}
+                  {item.location}
                 </td>
 
                 <td className="p-4">
-                  ₹{home.price}
+                  ₹{item.price}
                 </td>
 
                 <td className="p-4">
-                  {home.availableRooms}
+                  {item.availableRooms}
                 </td>
 
-                <td className="p-4 flex gap-2">
+                <td className="p-4 space-x-2">
 
                   <button
-                    className="bg-yellow-500 text-white px-4 py-1 rounded"
+                    className="bg-yellow-500 text-white px-3 py-1 rounded"
                   >
                     Edit
                   </button>
 
                   <button
-                    onClick={() => deleteHomestay(home._id)}
-                    className="bg-red-600 text-white px-4 py-1 rounded"
+                    onClick={() =>
+                      deleteHomestay(item._id)
+                    }
+                    className="bg-red-600 text-white px-3 py-1 rounded"
                   >
                     Delete
                   </button>
@@ -165,4 +176,4 @@ function HomestayManagement() {
   );
 }
 
-export default HomestayManagement;
+export default ManageHomestays;

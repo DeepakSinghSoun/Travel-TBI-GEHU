@@ -10,6 +10,9 @@ function Navbar() {
 
   const isLoggedIn = !!token;
 
+  const dashboardLink =
+    user?.role === "admin" ? "/admin" : "/dashboard";
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -21,31 +24,42 @@ function Navbar() {
 
         {/* Logo */}
         <Link to="/" className="text-3xl font-bold text-blue-600">
-          StayNest
+          TBI Trip
         </Link>
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex items-center gap-6 text-lg font-medium">
 
-          {/* Always visible */}
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/listings">Listings</Link></li>
-          <li><Link to="/trip-planner">Trip Planner</Link></li>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
 
-          {/* Logged in ONLY */}
+          <li>
+            <Link to="/listings">Listings</Link>
+          </li>
+
+          <li>
+            <Link to="/trip-planner">Trip Planner</Link>
+          </li>
+
           {isLoggedIn && (
             <>
-              <li><Link to="/dashboard">Dashboard</Link></li>
-              <li><Link to="/profile">Profile</Link></li>
+              <li>
+                <Link to={dashboardLink}>Dashboard</Link>
+              </li>
+
+              <li>
+                <Link to="/profile">Profile</Link>
+              </li>
             </>
           )}
 
-          {/* AUTH SWITCH */}
           {!isLoggedIn ? (
             <>
               <li>
                 <Link to="/login">Login</Link>
               </li>
+
               <li>
                 <Link
                   to="/register"
@@ -67,7 +81,7 @@ function Navbar() {
           )}
         </ul>
 
-        {/* Mobile button */}
+        {/* Mobile Menu Button */}
         <button
           className="md:hidden text-3xl"
           onClick={() => setIsOpen(!isOpen)}
@@ -76,31 +90,75 @@ function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Menu */}
       {isOpen && (
         <ul className="md:hidden flex flex-col gap-4 px-6 pb-6">
 
-          <li><Link onClick={() => setIsOpen(false)} to="/">Home</Link></li>
-          <li><Link onClick={() => setIsOpen(false)} to="/listings">Listings</Link></li>
-          <li><Link onClick={() => setIsOpen(false)} to="/trip-planner">Trip Planner</Link></li>
+          <li>
+            <Link onClick={() => setIsOpen(false)} to="/">
+              Home
+            </Link>
+          </li>
+
+          <li>
+            <Link onClick={() => setIsOpen(false)} to="/listings">
+              Listings
+            </Link>
+          </li>
+
+          <li>
+            <Link onClick={() => setIsOpen(false)} to="/trip-planner">
+              Trip Planner
+            </Link>
+          </li>
 
           {isLoggedIn && (
             <>
-              <li><Link onClick={() => setIsOpen(false)} to="/dashboard">Dashboard</Link></li>
-              <li><Link onClick={() => setIsOpen(false)} to="/profile">Profile</Link></li>
+              <li>
+                <Link
+                  onClick={() => setIsOpen(false)}
+                  to={dashboardLink}
+                >
+                  Dashboard
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  onClick={() => setIsOpen(false)}
+                  to="/profile"
+                >
+                  Profile
+                </Link>
+              </li>
             </>
           )}
 
           {!isLoggedIn ? (
             <>
-              <li><Link onClick={() => setIsOpen(false)} to="/login">Login</Link></li>
-              <li><Link onClick={() => setIsOpen(false)} to="/register">Register</Link></li>
+              <li>
+                <Link
+                  onClick={() => setIsOpen(false)}
+                  to="/login"
+                >
+                  Login
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  onClick={() => setIsOpen(false)}
+                  to="/register"
+                >
+                  Register
+                </Link>
+              </li>
             </>
           ) : (
             <li>
               <button
                 onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 w-full rounded"
+                className="bg-red-600 text-white px-4 py-2 rounded w-full"
               >
                 Logout
               </button>

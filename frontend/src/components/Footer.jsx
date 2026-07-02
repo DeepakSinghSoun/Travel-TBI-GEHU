@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Footer() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   const links = [
     { name: "Home", path: "/" },
@@ -11,10 +11,20 @@ function Footer() {
   ];
 
   if (token) {
-    links.push(
-      { name: "Dashboard", path: "/dashboard" },
-      { name: "Profile", path: "/profile" }
-    );
+    // Admin Links
+    if (user?.role === "admin") {
+      links.push(
+        { name: "Admin Dashboard", path: "/admin" },
+        { name: "Profile", path: "/profile" }
+      );
+    }
+    // User Links
+    else {
+      links.push(
+        { name: "Dashboard", path: "/dashboard" },
+        { name: "Profile", path: "/profile" }
+      );
+    }
   } else {
     links.push(
       { name: "Login", path: "/login" },
@@ -26,18 +36,20 @@ function Footer() {
     <footer className="bg-slate-900 text-white mt-16">
       <div className="max-w-7xl mx-auto px-6 py-12">
 
+        {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
 
           {/* About */}
           <div>
             <h2 className="text-3xl font-bold text-blue-400">
-              StayNest
+              TBI Trip
             </h2>
 
             <p className="mt-4 text-slate-300 leading-7">
-              StayNest is an AI-powered travel and homestay platform that
-              helps travelers discover unique accommodations, check
-              availability, and plan personalized trips effortlessly.
+              TBI-Trip is an AI-powered travel and homestay platform
+              that helps travelers discover unique accommodations,
+              check availability, and plan personalized trips
+              effortlessly.
             </p>
           </div>
 
@@ -96,6 +108,7 @@ function Footer() {
 
         </div>
 
+        {/* Bottom */}
         <div className="border-t border-slate-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
 
           <p className="text-slate-400 text-sm">

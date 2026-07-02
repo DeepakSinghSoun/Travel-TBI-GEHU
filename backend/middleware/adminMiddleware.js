@@ -1,6 +1,6 @@
 export const adminOnly = (req, res, next) => {
   try {
-    // req.user must already be set by protect middleware
+    // req.user comes from the protect middleware
     if (!req.user) {
       return res.status(401).json({
         success: false,
@@ -8,11 +8,10 @@ export const adminOnly = (req, res, next) => {
       });
     }
 
-    // check role
     if (req.user.role !== "admin") {
       return res.status(403).json({
         success: false,
-        message: "Access denied. Admins only.",
+        message: "Access denied. Admin only.",
       });
     }
 

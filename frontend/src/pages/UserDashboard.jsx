@@ -4,9 +4,6 @@ import Loader from "../components/Loader";
 
 function UserDashboard() {
   const [trips, setTrips] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
   const [stats, setStats] = useState({
     totalTrips: 0,
     bookings: 0,
@@ -14,129 +11,117 @@ function UserDashboard() {
     pending: 0,
   });
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    const fetchTrips = async () => {
-      try {
-        setLoading(true);
-
-        const token = localStorage.getItem("token");
-
-        // HARD CHECK
-        if (!token) {
-          setError("No token found. Please login first.");
-          setLoading(false);
-          return;
-        }
-
-        const res = await API.get("/trips", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = res.data.trips || [];
-
-        setTrips(data);
-
-        // REAL STATS FROM BACKEND DATA
-        setStats({
-          totalTrips: data.length,
-          bookings: data.length,
-          revenue: data.reduce(
-            (sum, trip) => sum + (trip.budget || 0),
-            0
-          ),
-          pending: 0,
-        });
-
-        setError("");
-      } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "Not authorized or API failed"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTrips();
+    fetchDashboard();
   }, []);
 
-  // LOADING
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+
+      const [tripRes, bookingRes] = await Promise.all([
+        API.get("/trips"),
+        API.get("/bookings/my"),
+      ]);
+
+      const tripData = tripRes.data.trips || [];
+      const bookingData = bookingRes.data.bookings || [];
+
+      setTrips(tripData);
+
+      setStats({
+        totalTrips: tripData.length,
+        bookings: bookingData.length,
+        revenue: bookingData.reduce(
+          (sum, booking) => sum + booking.totalPrice,
+          0
+        ),
+        pending: bookingData.filter(
+          (booking) => booking.status === "pending"
+        ).length,
+      });
+
+      setError("");
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Failed to load dashboard.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) return <Loader />;
 
-  // ERROR
-  if (error)
+  if (error) {
     return (
-      <div className="p-6 text-red-600">
-        <h2>{error}</h2>
+      <div className="min-h-screen flex items-center justify-center text-red-600 text-xl">
+        {error}
       </div>
     );
+  }
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
+    <div className="min-h-screen bg-gray-100 p-8">
 
-      {/* HEADER */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold">
-          Dashboard
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Manage your trips and track activity
-        </p>
-      </div>
+      <h1 className="text-4xl font-bold mb-2">
+        User Dashboard
+      </h1>
 
-      {/* STATS */}
+      <p className="text-gray-500 mb-8">
+        Welcome back! Here is your travel summary.
+      </p>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2>Total Trips</h2>
-          <p className="text-3xl font-bold">
+        <div className="bg-white rounded-xl shadow p-6">
+          <p className="text-gray-500">Total Trips</p>
+          <h2 className="text-4xl font-bold mt-2">
             {stats.totalTrips}
-          </p>
+          </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2>Bookings</h2>
-          <p className="text-3xl font-bold">
+        <div className="bg-white rounded-xl shadow p-6">
+          <p className="text-gray-500">My Bookings</p>
+          <h2 className="text-4xl font-bold mt-2">
             {stats.bookings}
-          </p>
+          </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2>Revenue</h2>
-          <p className="text-3xl font-bold">
+        <div className="bg-white rounded-xl shadow p-6">
+          <p className="text-gray-500">Total Spent</p>
+          <h2 className="text-4xl font-bold mt-2 text-green-600">
             ₹{stats.revenue}
-          </p>
+          </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2>Pending</h2>
-          <p className="text-3xl font-bold">
+        <div className="bg-white rounded-xl shadow p-6">
+          <p className="text-gray-500">Pending</p>
+          <h2 className="text-4xl font-bold mt-2 text-yellow-500">
             {stats.pending}
-          </p>
+          </h2>
         </div>
+
       </div>
 
-      {/* TRIPS LIST */}
-      <div className="mt-10 bg-white p-6 rounded-lg shadow">
+      <div className="bg-white rounded-xl shadow mt-10 p-6">
 
-        <h2 className="text-2xl font-semibold mb-4">
-          Your Trips
+        <h2 className="text-2xl font-bold mb-5">
+          Available Trips
         </h2>
 
         {trips.length === 0 ? (
-          <p>No trips found</p>
+          <p>No trips available.</p>
         ) : (
-          <div className="space-y-3">
-
+          <div className="space-y-4">
             {trips.map((trip) => (
               <div
                 key={trip._id}
-                className="border p-4 rounded-lg"
+                className="border rounded-lg p-4"
               >
-                <h3 className="font-bold text-lg">
+                <h3 className="text-xl font-semibold">
                   {trip.destination}
                 </h3>
 
@@ -144,10 +129,10 @@ function UserDashboard() {
                 <p>Travelers: {trip.travelers}</p>
               </div>
             ))}
-
           </div>
         )}
       </div>
+
     </div>
   );
 }

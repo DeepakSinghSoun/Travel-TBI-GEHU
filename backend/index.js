@@ -12,6 +12,7 @@ import authRoutes from "./routes/authRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import homestayRoutes from "./routes/homestayRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 import { protect } from "./middleware/authMiddleware.js";
 import Homestay from "./models/Homestay.js"; // ✅ FIXED IMPORT
@@ -32,6 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/trips", tripRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/homestays", homestayRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Home Route
 app.get("/", (req, res) => {

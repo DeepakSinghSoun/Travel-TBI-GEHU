@@ -16,8 +16,26 @@ export const createBooking = async (req, res) => {
       });
     }
 
-    // calculate price properly
-    const totalPrice = stay.price * (guests || 1);
+    // Convert dates
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    // Calculate number of nights
+    const nights = Math.ceil(
+      (checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)
+    );
+
+    if (nights <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Check-out date must be after check-in date",
+      });
+    }
+
+    // Calculate total price
+    // Assumes stay.price = price per room per night
+    // const totalPrice = stay.price * nights;
+    const totalPrice = stay.price * nights * guests;
 
     const booking = await Booking.create({
       user: req.user._id,

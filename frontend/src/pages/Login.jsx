@@ -63,7 +63,11 @@ function Login() {
       setShowToast(true);
 
       setTimeout(() => {
-        navigate("/dashboard");
+        if (user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       }, 800);
     } catch (err) {
       setToastMessage(

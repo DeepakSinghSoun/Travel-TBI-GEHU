@@ -20,26 +20,34 @@ function Profile() {
           return;
         }
 
-        // USER DATA
+        // Get current user
         const userRes = await API.get("/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        // BOOKINGS DATA (FIXED)
-        const bookingRes = await API.get("/bookings/my", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
         setUser(userRes.data.user);
-        setBookings(bookingRes.data.bookings || []);
+
+        // Fetch bookings ONLY for normal users
+        if (userRes.data.user.role !== "admin") {
+          const bookingRes = await API.get("/bookings/my", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          setBookings(bookingRes.data.bookings || []);
+        }
+
         setError("");
       } catch (err) {
-       console.log("PROFILE ERROR:", err.response || err.message);
-  setError(err.response?.data?.message || "Failed to load profile");
+        console.log("PROFILE ERROR:", err.response || err.message);
+
+        setError(
+          err.response?.data?.message ||
+          "Failed to load profile"
+        );
       } finally {
         setLoading(false);
       }
@@ -50,64 +58,119 @@ function Profile() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <h2>Loading profile...</h2>
+      <div className="p-6 text-xl">
+        Loading profile...
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6 text-red-600">
-        <h2>{error}</h2>
+      <div className="p-6 text-red-600 text-xl">
+        {error}
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-6">
 
-        {/* USER INFO */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h1 className="text-4xl font-bold mb-6">Profile</h1>
+        {/* Profile Card */}
+        <div className="bg-white rounded-xl shadow p-8">
+          <h1 className="text-4xl font-bold mb-6">
+            My Profile
+          </h1>
 
-          <div className="space-y-2">
-            <p><b>Name:</b> {user?.name}</p>
-            <p><b>Email:</b> {user?.email}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div>
+              <p className="text-gray-500">
+                Full Name
+              </p>
+
+              <h2 className="text-xl font-semibold">
+                {user?.name}
+              </h2>
+            </div>
+
+            <div>
+              <p className="text-gray-500">
+                Email
+              </p>
+
+              <h2 className="text-xl font-semibold">
+                {user?.email}
+              </h2>
+            </div>
+
+            <div>
+              <p className="text-gray-500">
+                Role
+              </p>
+
+              <span
+                className={`inline-block mt-2 px-4 py-1 rounded-full text-white ${
+                  user?.role === "admin"
+                    ? "bg-red-600"
+                    : "bg-green-600"
+                }`}
+              >
+                {user?.role}
+              </span>
+            </div>
+
           </div>
         </div>
 
-        {/* BOOKINGS */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-2xl font-bold mb-4">
-            My Bookings
-          </h2>
+        {/* User Bookings */}
+        {user?.role !== "admin" && (
+          <div className="bg-white rounded-xl shadow p-8">
 
-          {bookings.length === 0 ? (
-            <p>No bookings found</p>
-          ) : (
-            <div className="space-y-3">
-              {bookings.map((booking) => (
-                <div
-                  key={booking._id}
-                  className="border p-4 rounded-lg"
-                >
-                  <h3 className="font-bold">
-                    {booking.homestay?.title || "Homestay"}
-                  </h3>
+            <h2 className="text-2xl font-bold mb-5">
+              My Bookings
+            </h2>
 
-                  <p>Check-in: {booking.checkIn}</p>
-                  <p>Check-out: {booking.checkOut}</p>
-                  <p>Guests: {booking.guests}</p>
-                  <p className="font-semibold">
-                    Total: ₹{booking.totalPrice}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+            {bookings.length === 0 ? (
+              <p className="text-gray-500">
+                No bookings found.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {bookings.map((booking) => (
+                  <div
+                    key={booking._id}
+                    className="border rounded-lg p-5"
+                  >
+                    <h3 className="text-xl font-semibold">
+                      {booking.homestay?.title || "Homestay"}
+                    </h3>
+
+                    <p className="mt-2">
+                      <strong>Check In:</strong>{" "}
+                      {booking.checkIn}
+                    </p>
+
+                    <p>
+                      <strong>Check Out:</strong>{" "}
+                      {booking.checkOut}
+                    </p>
+
+                    <p>
+                      <strong>Guests:</strong>{" "}
+                      {booking.guests}
+                    </p>
+
+                    <p className="font-bold text-green-600 mt-2">
+                      ₹{booking.totalPrice}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+          </div>
+        )}
 
       </div>
     </div>

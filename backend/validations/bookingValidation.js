@@ -11,7 +11,7 @@ export const bookingSchema = z.object({
     .number({ invalid_type_error: "Guests must be a number" })
     .min(1, "At least 1 guest is required"),
 
-  totalPrice: z
-    .number({ invalid_type_error: "Total price must be a number" })
-    .min(0, "Price cannot be negative"),
+  // totalPrice: z
+  //   .number({ invalid_type_error: "Total price must be a number" })
+  //   .min(0, "Price cannot be negative"),
 });
