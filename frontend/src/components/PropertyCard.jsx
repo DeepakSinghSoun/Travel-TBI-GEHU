@@ -1,14 +1,14 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 
 function PropertyCard({
-  image,
+  _id,
+  images,
   title,
   location,
   price,
-  rating,
+  rating = 4.8,
   roomType,
-  totalRooms,
   availableRooms,
   availableFrom,
   availableTo,
@@ -23,20 +23,46 @@ function PropertyCard({
       return;
     }
 
-    navigate("/booking-request");
+    navigate("/booking-request", {
+      state: {
+        homestay: {
+          _id,
+          title,
+          location,
+          price,
+          roomType,
+          availableRooms,
+          availableFrom,
+          availableTo,
+          images,
+        },
+      },
+    });
+  };
+
+  const handleViewDetails = () => {
+    navigate(`/homestays/${_id}`);
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden shadow-md w-80 bg-white hover:shadow-lg transition">
-      
+    <div className="border rounded-lg overflow-hidden shadow-md bg-white hover:shadow-lg transition">
+
       <img
-        src={image}
+        src={
+          images?.length > 0
+            ? images[0]
+            : "https://via.placeholder.com/600x400?text=No+Image"
+        }
         alt={title}
-        className="w-full h-48 object-cover"
+        className="w-full h-52 object-cover cursor-pointer"
+        onClick={handleViewDetails}
       />
 
       <div className="p-4">
-        <h2 className="text-xl font-semibold">
+        <h2
+          className="text-xl font-semibold cursor-pointer hover:text-blue-600"
+          onClick={handleViewDetails}
+        >
           {title}
         </h2>
 
@@ -54,51 +80,65 @@ function PropertyCard({
 
         <hr className="my-3" />
 
-        <p className="text-gray-700">
+        <p>
           🛏 <span className="font-medium">Room Type:</span>{" "}
           {roomType}
         </p>
 
-        <p className="text-gray-700 mt-1">
+        <p className="mt-1">
           🚪 <span className="font-medium">Available Rooms:</span>{" "}
-          {availableRooms}/{totalRooms}
+          {availableRooms}
         </p>
 
-        <p className="mt-1">
-          📌 <span className="font-medium">Status:</span>{" "}
-          <span
-            className={
-              availableRooms > 0
-                ? "text-green-600 font-semibold"
-                : "text-red-600 font-semibold"
-            }
-          >
-            {availableRooms > 0
-              ? "Available"
-              : "Fully Booked"}
-          </span>
+        <p className="mt-2">
+          <span className="font-medium">Available:</span>{" "}
+          {availableRooms > 0 ? (
+            <span className="text-green-600 font-semibold">
+              Yes
+            </span>
+          ) : (
+            <span className="text-red-600 font-semibold">
+              No
+            </span>
+          )}
         </p>
 
         <p className="text-sm text-gray-500 mt-2">
-          📅 {availableFrom} - {availableTo}
+          {availableFrom
+            ? new Date(availableFrom).toLocaleDateString()
+            : "N/A"}{" "}
+          -{" "}
+          {availableTo
+            ? new Date(availableTo).toLocaleDateString()
+            : "N/A"}
         </p>
 
-        {/* BOOK BUTTON LOGIC */}
-        {availableRooms > 0 ? (
+        <div className="flex gap-2 mt-4">
+
           <Button
-            className="w-full mt-4"
-            onClick={handleBook}
+            className="flex-1"
+            onClick={handleViewDetails}
           >
-            Book Now
+            View Details
           </Button>
-        ) : (
-          <Button
-            disabled
-            className="w-full mt-4"
-          >
-            Not Available
-          </Button>
-        )}
+
+          {availableRooms > 0 ? (
+            <Button
+              className="flex-1"
+              onClick={handleBook}
+            >
+              Book Now
+            </Button>
+          ) : (
+            <Button
+              disabled
+              className="flex-1"
+            >
+              Not Available
+            </Button>
+          )}
+
+        </div>
       </div>
     </div>
   );

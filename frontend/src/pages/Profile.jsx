@@ -3,11 +3,10 @@ import API from "../api";
 
 function Profile() {
   const [user, setUser] = useState(null);
-  const [trips, setTrips] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // FETCH USER + BOOKINGS
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,21 +27,19 @@ function Profile() {
           },
         });
 
-        // USER TRIPS / BOOKINGS
-        const tripRes = await API.get("/trips", {
+        // BOOKINGS DATA (FIXED)
+        const bookingRes = await API.get("/bookings/my", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
         setUser(userRes.data.user);
-        setTrips(tripRes.data.trips || []);
+        setBookings(bookingRes.data.bookings || []);
         setError("");
       } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "Failed to load profile"
-        );
+       console.log("PROFILE ERROR:", err.response || err.message);
+  setError(err.response?.data?.message || "Failed to load profile");
       } finally {
         setLoading(false);
       }
@@ -69,52 +66,47 @@ function Profile() {
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
-
       <div className="max-w-4xl mx-auto space-y-6">
 
         {/* USER INFO */}
         <div className="bg-white p-6 rounded-lg shadow">
-
-          <h1 className="text-4xl font-bold mb-6">
-            Profile
-          </h1>
+          <h1 className="text-4xl font-bold mb-6">Profile</h1>
 
           <div className="space-y-2">
             <p><b>Name:</b> {user?.name}</p>
             <p><b>Email:</b> {user?.email}</p>
           </div>
-
         </div>
 
         {/* BOOKINGS */}
         <div className="bg-white p-6 rounded-lg shadow">
-
           <h2 className="text-2xl font-bold mb-4">
             My Bookings
           </h2>
 
-          {trips.length === 0 ? (
+          {bookings.length === 0 ? (
             <p>No bookings found</p>
           ) : (
             <div className="space-y-3">
-
-              {trips.map((trip) => (
+              {bookings.map((booking) => (
                 <div
-                  key={trip._id}
+                  key={booking._id}
                   className="border p-4 rounded-lg"
                 >
                   <h3 className="font-bold">
-                    {trip.destination}
+                    {booking.homestay?.title || "Homestay"}
                   </h3>
 
-                  <p>Budget: ₹{trip.budget}</p>
-                  <p>Travelers: {trip.travelers}</p>
+                  <p>Check-in: {booking.checkIn}</p>
+                  <p>Check-out: {booking.checkOut}</p>
+                  <p>Guests: {booking.guests}</p>
+                  <p className="font-semibold">
+                    Total: ₹{booking.totalPrice}
+                  </p>
                 </div>
               ))}
-
             </div>
           )}
-
         </div>
 
       </div>

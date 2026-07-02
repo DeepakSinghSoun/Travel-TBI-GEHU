@@ -70,6 +70,8 @@ function Register() {
         name: fullName.trim(),
         email: email.trim(),
         password,
+        confirmPassword,
+        terms,
       });
 
       if (res.data?.success || res.data) {

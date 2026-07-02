@@ -6,7 +6,6 @@ function BookingRequest() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Homestay passed from PropertyCard
   const homestay = location.state?.homestay || null;
 
   const [booking, setBooking] = useState({
@@ -28,20 +27,14 @@ function BookingRequest() {
     e.preventDefault();
 
     try {
-      // Dynamic total price
-      const totalPrice = homestay?.price
-        ? homestay.price * booking.guests
-        : booking.guests * 1500;
-
       await API.post("/bookings", {
-        homestay: homestay?._id || "StayNest Premium",
+        homestay: homestay?._id,
         checkIn: booking.checkIn,
         checkOut: booking.checkOut,
-        guests: booking.guests,
-        totalPrice,
+        guests: Number(booking.guests),
       });
 
-      alert("Booking Submitted");
+      alert("Booking Successful");
 
       setBooking({
         name: "",
@@ -53,10 +46,7 @@ function BookingRequest() {
 
       navigate("/profile");
     } catch (err) {
-      alert(
-        err.response?.data?.message ||
-        "Booking Failed"
-      );
+      alert(err.response?.data?.message || "Booking Failed");
     }
   };
 
@@ -73,19 +63,14 @@ function BookingRequest() {
             <h2 className="text-xl font-semibold">
               {homestay.title}
             </h2>
-
             <p>{homestay.location}</p>
-
             <p className="text-blue-600 font-bold">
               ₹{homestay.price}/night
             </p>
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="space-y-4">
 
           <input
             type="text"
@@ -111,7 +96,6 @@ function BookingRequest() {
             <label className="block mb-2 font-medium">
               Check In
             </label>
-
             <input
               type="date"
               name="checkIn"
@@ -126,7 +110,6 @@ function BookingRequest() {
             <label className="block mb-2 font-medium">
               Check Out
             </label>
-
             <input
               type="date"
               name="checkOut"
@@ -141,7 +124,6 @@ function BookingRequest() {
             <label className="block mb-2 font-medium">
               Guests
             </label>
-
             <input
               type="number"
               name="guests"
@@ -160,7 +142,6 @@ function BookingRequest() {
           </button>
 
         </form>
-
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ export const adminOnly = (req, res, next) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Server error in admin check",
+      message: error.message,
     });
   }
 };

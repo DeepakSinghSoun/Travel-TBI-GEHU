@@ -7,14 +7,14 @@ export const registerUser = async (req, res) => {
   try {
     let { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
+    // if (!name || !email || !password) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "All fields are required",
+    //   });
+    // }
 
-    email = email.toLowerCase().trim();
+    // email = email.toLowerCase().trim();
 
     const existingUser = await User.findOne({ email });
 
@@ -26,12 +26,12 @@ export const registerUser = async (req, res) => {
     }
 
     // password will be hashed in model OR here (but NOT both)
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password,
     });
 
     return res.status(201).json({
@@ -56,12 +56,12 @@ export const loginUser = async (req, res) => {
   try {
     let { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and password are required",
-      });
-    }
+    // if (!email || !password) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Email and password are required",
+    //   });
+    // }
 
     email = email.toLowerCase().trim();
 

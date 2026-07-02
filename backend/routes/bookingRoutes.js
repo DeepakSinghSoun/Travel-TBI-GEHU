@@ -18,7 +18,7 @@ const router = express.Router();
 router.post("/", protect, validate(bookingSchema), createBooking);
 
 // USER BOOKINGS
-router.get("/me", protect, getMyBookings);
+router.get("/my", protect, getMyBookings);
 
 // ADMIN: ALL BOOKINGS
 router.get("/", protect, adminOnly, getAllBookings);

@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
+import API from "../api";
 import PropertyCard from "../components/PropertyCard";
 import PropertySearch from "../components/PropertySearch";
 import Loader from "../components/Loader";
-import properties from "../data/properties";
+import { filterProperties } from "../utils/filterProperties";
 
 function Listings() {
   const [loading, setLoading] = useState(true);
+  const [properties, setProperties] = useState([]);
 
   const [searchData, setSearchData] = useState({
     destination: "",
@@ -16,15 +18,30 @@ function Listings() {
     price: "",
   });
 
+  // FETCH HOMESTAYS FROM BACKEND
   useEffect(() => {
-    // Simulate API request
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
+    const fetchHomestays = async () => {
+      try {
+        setLoading(true);
 
-    return () => clearTimeout(timer);
+        const res = await API.get("/homestays");
+
+        console.log("HOMESTAYS:", res.data);
+
+        // safe handling (supports both API formats)
+        setProperties(res.data?.homestays || res.data || []);
+      } catch (err) {
+        console.log("ERROR:", err.response || err.message);
+        setProperties([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHomestays();
   }, []);
 
+  // HANDLE INPUT CHANGE
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -34,66 +51,31 @@ function Listings() {
     }));
   };
 
+  // FORM SUBMIT
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(searchData);
+    console.log("Search Data:", searchData);
   };
 
-  const filteredProperties = properties.filter((property) => {
-    // Destination
-    const matchesDestination =
-      searchData.destination === "" ||
-      property.title
-        .toLowerCase()
-        .includes(searchData.destination.toLowerCase()) ||
-      property.location
-        .toLowerCase()
-        .includes(searchData.destination.toLowerCase());
+  // FILTER PROPERTIES
+  const filteredProperties = filterProperties(properties, searchData);
 
-    // Price
-    const matchesPrice =
-      searchData.price === "" ||
-      property.price <= Number(searchData.price);
-
-    // Room Type
-    const matchesRoom =
-      searchData.roomType === "" ||
-      property.roomType === searchData.roomType;
-
-    // Available Rooms
-    const hasRooms = property.availableRooms > 0;
-
-    // Date Availability
-    const matchesDate =
-      (!searchData.checkIn ||
-        searchData.checkIn >= property.availableFrom) &&
-      (!searchData.checkOut ||
-        searchData.checkOut <= property.availableTo);
-
-    return (
-      matchesDestination &&
-      matchesPrice &&
-      matchesRoom &&
-      hasRooms &&
-      matchesDate
-    );
-  });
-
-  // Show Loader while data is loading
+  // LOADER
   if (loading) {
     return <Loader />;
   }
 
   return (
     <section className="px-6 py-10 bg-gray-100 min-h-screen">
-      {/* Search Form */}
+      
+      {/* SEARCH */}
       <PropertySearch
         searchData={searchData}
         handleChange={handleChange}
         handleSubmit={handleSubmit}
       />
 
-      {/* Listings */}
+      {/* LISTINGS */}
       <div className="mt-10">
         <h2 className="text-3xl font-bold text-center mb-8">
           Featured Homestays
@@ -103,7 +85,7 @@ function Listings() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProperties.map((property) => (
               <PropertyCard
-                key={property.id}
+                key={property._id || property.id}
                 {...property}
               />
             ))}

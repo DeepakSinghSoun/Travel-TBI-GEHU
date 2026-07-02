@@ -1,4 +1,7 @@
+// throw new Error("AUTH ROUTES FILE LOADED");
+
 import express from "express";
+import rateLimit from "express-rate-limit";
 
 import {
   registerUser,
@@ -12,6 +15,13 @@ import {
   registerSchema,
   loginSchema,
 } from "../validations/authValidation.js"; // FIXED PATH
+
+// Rate limiter for auth routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Too many requests, try again later",
+});
 
 const router = express.Router();
 

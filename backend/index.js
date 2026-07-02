@@ -7,13 +7,18 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import connectDB from "./config/db.js";
+
 import authRoutes from "./routes/authRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
-import { protect } from "./middleware/authMiddleware.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import homestayRoutes from "./routes/homestayRoutes.js";
+
+import { protect } from "./middleware/authMiddleware.js";
+import Homestay from "./models/Homestay.js"; // ✅ FIXED IMPORT
 
 dotenv.config();
 
+// Connect DB
 connectDB();
 
 const app = express();
@@ -26,6 +31,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/trips", tripRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/homestays", homestayRoutes);
 
 // Home Route
 app.get("/", (req, res) => {
@@ -51,6 +57,24 @@ app.get("/health", (req, res) => {
     status: "OK",
     uptime: process.uptime(),
   });
+});
+
+// DEBUG ROUTE (for testing DB)
+app.get("/test-homestays", async (req, res) => {
+  try {
+    const data = await Homestay.find();
+
+    res.json({
+      success: true,
+      count: data.length,
+      data,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
 });
 
 // Start Server
