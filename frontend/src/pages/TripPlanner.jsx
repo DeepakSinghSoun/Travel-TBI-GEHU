@@ -14,6 +14,7 @@ function TripPlanner() {
   });
 
   const [generated, setGenerated] = useState(false);
+  const [itinerary, setItinerary] = useState([]);
 
   const handleChange = (e) => {
     setTrip({
@@ -22,29 +23,80 @@ function TripPlanner() {
     });
   };
 
+  const generateItinerary = () => {
+    const start = new Date(trip.checkIn);
+    const end = new Date(trip.checkOut);
+
+    const days =
+      Math.max(
+        1,
+        Math.ceil((end - start) / (1000 * 60 * 60 * 24))
+      ) + 1;
+
+    const plans = [];
+
+    for (let i = 1; i <= days; i++) {
+      let activity = "";
+
+      if (i === 1) {
+        activity = "Arrival, Hotel Check-in & Evening Walk";
+      } else if (i === days) {
+        activity = "Breakfast, Shopping & Departure";
+      } else {
+        switch (trip.travelStyle) {
+          case "Adventure":
+            activity = "Adventure Sports & Nature Trek";
+            break;
+
+          case "Luxury":
+            activity = "Luxury Spa, Fine Dining & Relaxation";
+            break;
+
+          case "Family":
+            activity = "Family Attractions & Local Parks";
+            break;
+
+          case "Couple":
+            activity = "Romantic Sightseeing & Sunset Point";
+            break;
+
+          default:
+            activity = "Explore Famous Tourist Attractions";
+        }
+      }
+
+      plans.push({
+        day: i,
+        activity,
+      });
+    }
+
+    setItinerary(plans);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log(trip);
+    generateItinerary();
 
     setGenerated(true);
   };
 
   return (
     <section className="min-h-screen bg-gray-100 py-12 px-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
         <h1 className="text-5xl font-bold text-center">
           AI Trip Planner
         </h1>
 
         <p className="text-center text-gray-600 mt-3 mb-10">
-          Plan your dream trip with personalized recommendations.
+          Generate a personalized travel itinerary.
         </p>
 
         <div className="grid lg:grid-cols-2 gap-10">
 
-          {/* Form */}
+          {/* LEFT */}
 
           <div className="bg-white rounded-xl shadow-lg p-8">
 
@@ -99,7 +151,7 @@ function TripPlanner() {
 
               <div>
                 <label className="block mb-2 font-medium">
-                  Number of Travelers
+                    Number of Travelers
                 </label>
 
                 <input
@@ -108,14 +160,15 @@ function TripPlanner() {
                   min="1"
                   value={trip.travelers}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                  placeholder="Travelers"
+                  className="w-full border rounded-lg p-3"
+                  />
               </div>
 
               <input
                 type="number"
                 name="budget"
-                placeholder="Budget (₹)"
+                placeholder="Budget"
                 value={trip.budget}
                 onChange={handleChange}
                 className="w-full border rounded-lg p-3"
@@ -166,41 +219,36 @@ function TripPlanner() {
                 type="submit"
                 className="w-full py-3"
               >
-                Generate AI Itinerary
+                Generate Itinerary
               </Button>
 
             </form>
 
           </div>
 
-          {/* AI Result */}
+          {/* RIGHT */}
 
           <div className="bg-white rounded-xl shadow-lg p-8">
 
             <h2 className="text-3xl font-bold mb-6">
-              AI Recommendation
+              AI Travel Plan
             </h2>
 
             {!generated ? (
-
-              <div className="text-center mt-24 text-gray-500">
-                <p>
-                  Fill in your travel details and click
-                  <strong> Generate AI Itinerary</strong>.
-                </p>
+              <div className="text-center text-gray-500 mt-24">
+                Fill the form to generate your itinerary.
               </div>
-
             ) : (
+              <>
 
-              <div className="space-y-4">
+                <div className="border rounded-lg p-5 mb-6">
 
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-bold text-xl">
+                  <h3 className="text-2xl font-bold">
                     📍 {trip.destination}
                   </h3>
 
-                  <p>
-                    {trip.checkIn} → {trip.checkOut}
+                  <p className="mt-2">
+                    📅 {trip.checkIn} → {trip.checkOut}
                   </p>
 
                   <p>
@@ -216,38 +264,41 @@ function TripPlanner() {
                   </p>
 
                   <p>
-                    ✈️ {trip.transport}
+                    🚗 {trip.transport}
                   </p>
 
                   <p>
                     🎒 {trip.travelStyle}
                   </p>
+
                 </div>
 
-                <div className="bg-blue-50 rounded-lg p-5">
+                <div className="bg-blue-50 rounded-lg p-6">
 
-                  <h3 className="font-bold mb-3">
-                    Sample AI Itinerary
+                  <h3 className="text-2xl font-bold mb-4">
+                    Recommended Itinerary
                   </h3>
 
-                  <ul className="space-y-2">
+                  <div className="space-y-3">
 
-                    <li>Day 1 • Arrival & Local Sightseeing</li>
+                    {itinerary.map((item) => (
+                      <div
+                        key={item.day}
+                        className="bg-white rounded-lg p-4 shadow"
+                      >
+                        <h4 className="font-bold">
+                          Day {item.day}
+                        </h4>
 
-                    <li>Day 2 • Explore Popular Attractions</li>
+                        <p>{item.activity}</p>
+                      </div>
+                    ))}
 
-                    <li>Day 3 • Adventure Activities</li>
-
-                    <li>Day 4 • Shopping & Local Food Tour</li>
-
-                    <li>Day 5 • Departure</li>
-
-                  </ul>
+                  </div>
 
                 </div>
 
-              </div>
-
+              </>
             )}
 
           </div>

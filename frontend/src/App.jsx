@@ -3,21 +3,31 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
-// Pages
+// Public Pages
 import Home from "./pages/Home";
 import Listings from "./pages/Listings";
-import UserDashboard from "./pages/UserDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import TripPlanner from "./pages/TripPlanner";
+
+// User Pages
+import UserDashboard from "./pages/UserDashboard";
+import Profile from "./pages/Profile";
 import HomestayManagement from "./pages/HomestayManagement";
 import BookingRequest from "./pages/BookingRequest";
-import TripPlanner from "./pages/TripPlanner";
-import Profile from "./pages/Profile";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminRoute from "./components/AdminRoute";
 
-// Protected Route
+// Admin Pages
+import AdminDashboard from "./pages/AdminDashboard";
+import ManageHomestays from "./pages/admin/ManageHomestays";
+import ManageUsers from "./pages/admin/ManageUsers";
+import HomestayForm from "./pages/admin/HomestayForm";
+import ManageBookings from "./pages/admin/ManageBookings";
+import ManagePackages from "./pages/admin/ManagePackages";
+import PackageForm from "./pages/admin/PackageForm";
+
+// Route Guards
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 function App() {
   return (
@@ -39,25 +49,7 @@ function App() {
 
         <Route path="/register" element={<Register />} />
 
-        {/* ================= ADMIN ROUTES ================= */}
-
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/homestays"
-          element={
-            <ProtectedRoute>
-              <HomestayManagement />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/admin/packages" element={<ManagePackages />} />
 
         {/* ================= USER ROUTES ================= */}
 
@@ -97,6 +89,10 @@ function App() {
           }
         />
 
+
+
+        {/* ================= ADMIN ROUTES ================= */}
+
         <Route
           path="/admin"
           element={
@@ -110,7 +106,70 @@ function App() {
           path="/admin/homestays"
           element={
             <AdminRoute>
-              <HomestayManagement />
+              <ManageHomestays />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute>
+              <ManageUsers />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/homestays/new"
+          element={
+            <AdminRoute>
+              <HomestayForm />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/homestays/edit/:id"
+          element={
+            <AdminRoute>
+              <HomestayForm />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/bookings"
+          element={
+            <AdminRoute>
+              <ManageBookings />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/packages"
+          element={
+            <AdminRoute>
+              <ManagePackages />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/packages/new"
+          element={
+            <AdminRoute>
+              <PackageForm />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/packages/edit/:id"
+          element={
+            <AdminRoute>
+              <PackageForm />
             </AdminRoute>
           }
         />

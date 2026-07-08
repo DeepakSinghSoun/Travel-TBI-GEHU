@@ -1,6 +1,6 @@
+// Admin Only
 export const adminOnly = (req, res, next) => {
   try {
-    // req.user comes from the protect middleware
     if (!req.user) {
       return res.status(401).json({
         success: false,

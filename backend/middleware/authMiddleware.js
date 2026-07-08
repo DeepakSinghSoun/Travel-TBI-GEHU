@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
+// Protect Route
 export const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -15,6 +16,7 @@ export const protect = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     let decoded;
+
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
@@ -34,6 +36,7 @@ export const protect = async (req, res, next) => {
     }
 
     req.user = user;
+
     next();
   } catch (error) {
     return res.status(500).json({

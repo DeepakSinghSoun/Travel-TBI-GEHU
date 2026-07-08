@@ -27,21 +27,42 @@ const bookingSchema = new mongoose.Schema(
     guests: {
       type: Number,
       required: true,
+      min: 1,
     },
 
     totalPrice: {
       type: Number,
       required: true,
+      min: 0,
     },
 
+    // Booking Status
     status: {
       type: String,
       enum: [
-        "Pending",
-        "Confirmed",
-        "Cancelled",
+        "pending",
+        "approved",
+        "rejected",
       ],
-      default: "Pending",
+      default: "pending",
+    },
+
+    // Payment Status
+    paymentStatus: {
+      type: String,
+      enum: [
+        "pending",
+        "paid",
+        "refunded",
+      ],
+      default: "pending",
+    },
+
+    // Optional Admin Notes
+    adminNote: {
+      type: String,
+      trim: true,
+      default: "",
     },
   },
   {
